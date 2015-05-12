@@ -1,11 +1,17 @@
 #
 # iniparser Makefile
 #
+prefix ?= /usr
+exec_prefix ?= $(prefix)
+libdir ?= $(exec_prefix)/lib
+includedir ?= $(exec_prefix)/include
 
 # Compiler settings
 CC      ?= gcc
 CFLAGS	?= -O2
 CFLAGS  += -fPIC -Wall -ansi -std=c99 -pedantic
+INSTALL ?= install
+INSTALL_DATA ?= $(INSTALL) -m 644
 
 # Ar settings to build the library
 AR	    ?= ar
@@ -55,6 +61,13 @@ libiniparser.so:	$(OBJS)
 	$(QUIET_LINK)$(SHLD) $(LDSHFLAGS) $(LDFLAGS) -o $@.0 $(OBJS) \
 		-Wl,-soname=`basename $@`.0
 
+install:	default
+	mkdir -p $(DESTDIR)$(libdir)
+	$(INSTALL) -m 0644 libiniparser.a $(DESTDIR)$(libdir)
+	$(INSTALL) -m 0755 libiniparser.so.0 $(DESTDIR)$(libdir)
+	mkdir -p $(DESTDIR)$(includedir)/iniparser
+	$(INSTALL_DATA) src/iniparser.h src/dictionary.h $(DESTDIR)$(includedir)/iniparser
+
 clean:
 	$(RM) $(OBJS)
 
@@ -69,4 +82,4 @@ docs:
 check: default
 	@(cd test ; $(MAKE))
 
-.PHONY: default clean veryclean docs check
+.PHONY: default clean veryclean docs check install
